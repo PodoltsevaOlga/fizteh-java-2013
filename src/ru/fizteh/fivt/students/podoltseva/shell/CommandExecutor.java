@@ -1,0 +1,45 @@
+package ru.fizteh.fivt.students.podoltseva.shell;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CommandExecutor {
+	private Map<String, Command> commandList = new HashMap<String, Command>();
+	
+	public CommandExecutor() {
+	}
+	
+	public CommandExecutor(HashMap<String, Command> newCommandList) {
+		commandList = newCommandList;
+	}
+	
+	void addCommand(Command newCommand) {
+		commandList.put(newCommand.getName(), newCommand);
+	}
+	
+	void deleteCommand(String name) {
+		commandList.remove(name);
+	}
+	
+	public void execute(String commandWithArgs) throws IOException, ParseException {
+		if (commandWithArgs.length() == 0) {
+			return;
+		}
+		String[] commandAndArgs = commandWithArgs.split("\\s+");
+		Command command = commandList.get(commandAndArgs[0]);
+		if (command == null) {
+			throw new IOException(commandAndArgs[0] + ": no such command.");
+		}
+		if (command.getArgsCount() != -1 && command.getArgsCount() != (commandAndArgs.length - 1)) {
+			throw new IOException(commandAndArgs[0] + ": This command has different number of arguments.");
+		}
+		String[] args = new String[commandAndArgs.length - 1];
+		for (int i = 1; i < commandAndArgs.length; ++i) {
+			args[i - 1] = commandAndArgs[i];
+		}
+		command.execute(args);
+	}
+
+}
